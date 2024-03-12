@@ -127,7 +127,7 @@ int main(void)
 }
 #endif
 
-#if 0
+#if 1
 int main(void)
 {
 	while (1)
@@ -159,8 +159,3 @@ int main(void)
 	}
 }
 #endif
-
-int main(void)
-{
-	printf("Hi");
-}
