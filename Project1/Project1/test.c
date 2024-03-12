@@ -82,9 +82,14 @@ int main()
 }
 #endif
 
-#if 0
+#if 1
 int test01();
 void test02(int a);
+void test03(int a);
+void Dump(char* p, int len);
+void Copy(char* p1, char* p2);
+
+
 
 int test01()
 {
@@ -94,7 +99,7 @@ int test01()
 	while (1)
 	{
 		printf("<");
-		char n = getch();
+		char n = _getch();
 		int m = n - 0x30; // ASCII값을 num 값으로 변경.
 		if (m >= 0 && m <= 9)
 			printf("%c : %s\n", n, name[m]);
@@ -119,21 +124,62 @@ void test02(int a)								// 문자열과 문자배열
 		printf("ca[%d]:%c (%02x)\n", i, ca[i], ca[i]);
 	}
 }
+void test03(int a)							// 의도 : kBuf를 이용해서 찍은 문자열이 메모리공간에 어디에 들어가 있는지 확인한다.
+{
+	char buf[100];						// 안전 메모리 공간 확보
+	char* pBuf;							// 안전 메모리 공간 중의 출력 위치
+	unsigned int addr;							// 출력 위치 지정을 위한 입력 변수(주소)
+	char kBuf[100];						// 출력 문자열 입력 공간 확보
 
 
+	printf("안전 공간의 주소는 %d[%08x] 입니다.\n", (unsigned)buf, (unsigned int)buf);
+	printf("입력을 시작할 주소를 입력하세요 : ");
+	scanf("%d", &addr);					// 안전공간 주소 참고
+	pBuf = buf + addr;					
+	printf("문자열을 입력하세요 : ");
+	scanf("%s", kBuf);
+	Copy(pBuf, kBuf);					// 문자열 복사
+	Dump(buf, 100);
+}
+
+void Copy(char* p1, char* p2)
+{
+	while (*p2)							// 무한루프 (p2의 값) p2의 값이 \0이 아니라면 계속수행
+	{
+		*p1++ = *p2++;					// p1의 값에다가 p2의 값을 대입.
+		*p1 = 0;
+	}
+}
+void Dump(char*p, int len)				// 메모리 공간 출력용 범용 함수
+{
+	for (int i = 0; i < len; i++)
+	{
+		if (i % 16 == 0)				// 16의 배수마다 (줄 바꿈이 일어 날때 마다) 값을 찍는다.
+		{
+			printf("\n%08x", (unsigned int)p);		// p = 주소값
+		}
+	printf("%02x", (unsigned char)*p);	// *p = 문자값
+		if (i % 8 == 0)
+		{
+			printf("  ");
+		}
+	}
+}
 int main(void)
 {
-	test02(1);
+	//test01(1);
+	//test02(1);
+	test03(1);
 }
 #endif
 
-#if 1
+#if 0
 int main(void)
 {
 	while (1)
 	{
 		printf("<");
-		char c = getch();
+		char c = _getch();
 
 		if (c >= 0x30 && c <= 0x39)
 		{
@@ -157,5 +203,12 @@ int main(void)
 		}
 
 	}
+}
+#endif
+
+#if 0
+int main(void)
+{
+	printf("Hello");
 }
 #endif
