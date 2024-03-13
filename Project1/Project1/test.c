@@ -1,3 +1,6 @@
+#define _CRT_SECURE_NO_WARNINGS			//소스파일에서 안전하지 않은(unsafe) scanf, strcpy, fopen 등을 사용할 수 있게 한다.
+
+
 #include <stdio.h>
 #include <conio.h>
 
@@ -91,7 +94,7 @@ void Copy(char* p1, char* p2);
 
 
 
-int test01()
+int test01()				//  숫자키에 대한 문자열 출력
 {
 	char* name[] = { "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine" };
 	printf("숫자를 입력하세요.\n");
@@ -124,18 +127,18 @@ void test02(int a)								// 문자열과 문자배열
 		printf("ca[%d]:%c (%02x)\n", i, ca[i], ca[i]);
 	}
 }
-void test03(int a)							// 의도 : kBuf를 이용해서 찍은 문자열이 메모리공간에 어디에 들어가 있는지 확인한다.
+void test03(int a)						// 의도 : kBuf를 이용해서 찍은 문자열이 메모리공간에 어디에 들어가 있는지 확인한다.(포인터의 위치 지정)
 {
 	char buf[100];						// 안전 메모리 공간 확보
 	char* pBuf;							// 안전 메모리 공간 중의 출력 위치
-	unsigned int addr;							// 출력 위치 지정을 위한 입력 변수(주소)
+	unsigned int addr;					// 출력 위치 지정을 위한 입력 변수(주소)
 	char kBuf[100];						// 출력 문자열 입력 공간 확보
 
 
 	printf("안전 공간의 주소는 %d[%08x] 입니다.\n", (unsigned)buf, (unsigned int)buf);
 	printf("입력을 시작할 주소를 입력하세요 : ");
 	scanf("%d", &addr);					// 안전공간 주소 참고
-	pBuf = buf + addr;					
+	pBuf = buf + addr;					// 상수값 위치 지정			
 	printf("문자열을 입력하세요 : ");
 	scanf("%s", kBuf);
 	Copy(pBuf, kBuf);					// 문자열 복사
@@ -165,11 +168,28 @@ void Dump(char*p, int len)				// 메모리 공간 출력용 범용 함수
 		}
 	}
 }
+
+void test04()			// 포인터를 이용한 문자열 입출력 함수
+{
+	char* arr[10] = {"aaaaa","bbbb","ccc","dd", "e"};
+	char buf[100];
+
+	printf("[6] : "); scanf("%s", buf);
+	arr[6] = buf;
+	printf("[7] : "); scanf("%s", &buf[50]);
+	arr[7] = &buf[50];
+	for (int i = 0; i < 10; i++)
+	{
+		// arr[i]둘 다 주소 하지만 변환자 %x와 %s가 다르기 때문에 주소값과 문자열을 보낸다.
+		printf("arr[%d] : 0x%08x %s\n", i, arr[i], arr[i]);
+	}
+}
 int main(void)
 {
 	//test01(1);
 	//test02(1);
-	test03(1);
+	//test03(1);
+	test04(1);
 }
 #endif
 
