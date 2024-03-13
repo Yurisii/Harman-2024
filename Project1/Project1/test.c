@@ -86,15 +86,18 @@ int main()
 #endif
 
 #if 1
-int test01();
-void test02(int a);
-void test03(int a);
+void test01();
+void test02();
+void test03();
+void test04();
+void test05();
+void test06();
 void Dump(char* p, int len);
 void Copy(char* p1, char* p2);
 
 
 
-int test01()				//  숫자키에 대한 문자열 출력
+void test01()				//  숫자키에 대한 문자열 출력
 {
 	char* name[] = { "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine" };
 	printf("숫자를 입력하세요.\n");
@@ -111,7 +114,7 @@ int test01()				//  숫자키에 대한 문자열 출력
 	}
 
 }
-void test02(int a)								// 문자열과 문자배열
+void test02()								// 문자열과 문자배열
 {
 	char ca[] = "Hello";						// ca[0] : H 부터 ~ ca[5] : \0
 	// int i <- 예전 표준, 밖에서 변수 선언 했었어야 한다.
@@ -127,7 +130,7 @@ void test02(int a)								// 문자열과 문자배열
 		printf("ca[%d]:%c (%02x)\n", i, ca[i], ca[i]);
 	}
 }
-void test03(int a)						// 의도 : kBuf를 이용해서 찍은 문자열이 메모리공간에 어디에 들어가 있는지 확인한다.(포인터의 위치 지정)
+void test03()						// 의도 : kBuf를 이용해서 찍은 문자열이 메모리공간에 어디에 들어가 있는지 확인한다.(포인터의 위치 지정)
 {
 	char buf[100];						// 안전 메모리 공간 확보
 	char* pBuf;							// 안전 메모리 공간 중의 출력 위치
@@ -181,15 +184,59 @@ void test04()			// 포인터를 이용한 문자열 입출력 함수
 	for (int i = 0; i < 10; i++)
 	{
 		// arr[i]둘 다 주소 하지만 변환자 %x와 %s가 다르기 때문에 주소값과 문자열을 보낸다.
-		printf("arr[%d] : 0x%08x %s\n", i, arr[i], arr[i]);
+		printf("arr[%d] : 0x%08x %s\n", i, (unsigned int)arr[i], arr[i]);
 	}
 }
+void test05()
+{
+	struct stTest
+	{
+		int i;
+		float a;
+		char * name;					// 주소는 무조건 8바이트 64byte에서! 
+	} s1 = { 1, 3.14 };
+	s1.name = "삼천갑자 동방삭";	// const 주소로 들어가 그 주소가 name에 들어온다.
+
+	typedef struct stTest st_test;
+
+	struct stTest s2 = s1;
+	//printf("%d\n", sizeof(s1.name));
+	printf("sizeof(struct stTest) : %d\n", (int)sizeof(st_test)); // 맴버 편수들의 총 바이트 수를 되돌려주는 함수(매크로)가 sizeof 이다.
+
+	printf("struct stTset s1 : %d %f %s\n", s1.i, s1.a, s1.name);
+	printf("struct stTset s2 : %d %f %s\n", s2.i, s2.a, s2.name);
+}
+
+void test06()
+{
+
+}
+
 int main(void)
 {
+	int n;
+	void* p_arr[] = { test01, test02, test03, test04, test05 };			// 타입이 정해지지 않은 포인터
+	void (*p_func)();			// 리턴값이 없고 인자가 정해지지않은 함수 포인터 선언
+	while (1)
+	{
+		printf("1. 숫자키에 대한 문자열 출력 미션\n");
+		printf("2. 문자열과 문자배열\n");
+		printf("3. 포인터의 위치 지정\n");
+		printf("4. 포인터를 이용한 문자열 입출력 함수\n");
+		printf("5. 구조체 테스트\n");
+
+		printf("0. 종료\n");
+		printf("====================================\n");
+
+		scanf("%d", &n);
+		p_func = p_arr[n - 1];
+		p_func();
+	}
+	if (n == 1) p_func = test01;
 	//test01(1);
 	//test02(1);
 	//test03(1);
-	test04(1);
+	//test04(1);
 }
 #endif
 
