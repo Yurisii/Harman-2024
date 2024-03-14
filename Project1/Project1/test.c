@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include <conio.h>
-
+#include <string.h>
 
 #if 0
 int main()
@@ -92,10 +92,102 @@ void test03();
 void test04();
 void test05();
 void test06();
+void test07();
+void test08();
+
 void Dump(char* p, int len);
 void Copy(char* p1, char* p2);
+int Length(char* str);
+int Compare(char* str1, char* str2);
 
 
+
+
+
+//--------------함수 설계------------------//
+// Prototype : void Copy(char* p1, char* p2)
+// 함수명 : Copy
+// 기능   : p2 문자열을 인수로 받아서 p1 문자열로 복사.
+// 인수   : 타겟문자열, 소스문자열 - char* p1, char *p2;
+// 리턴값 : void
+void Copy(char* p1, char* p2)
+{
+	while (*p2)							// 무한루프 (p2의 값) p2의 값이 \0이 아니라면 계속수행
+	{
+		*p1++ = *p2++;					// p1의 값에다가 p2의 값을 대입.
+		*p1 = 0;
+	}
+}
+void Dump(char*p, int len)				// 메모리 공간 출력용 범용 함수
+{
+	for (int i = 0; i < len; i++)
+	{
+		if (i % 16 == 0)				// 16의 배수마다 (줄 바꿈이 일어 날때 마다) 값을 찍는다.
+		{
+			printf("\n%08x", (unsigned int)p);		// p = 주소값
+		}
+	printf("%02x", (unsigned char)*p);	// *p = 문자값
+		if (i % 8 == 0)
+		{
+			printf("  ");
+		}
+	}
+}
+//--------------함수 설계------------------//
+// int Length(char* str)
+// 함수명 : Length
+// 기능   : 문자열을 인수로 받아서 문자열의 길이를 반환.
+// 인수   : 문자열 - char* str
+// 리턴값 : 문자열의 길이 - int len
+int Length(char* str)
+{
+	char buf[100];
+	str = buf;
+	printf("입력 >");
+	scanf("%s", str);
+	int len = 0;
+	while (*str)							
+	{
+		str++;
+		len++;
+	}
+	/*
+	while (1)
+	{
+		if (*(str + len) == 0)
+		len++;
+	}
+	*/
+	printf("입력한 [%s]의 길이는 [%d]입니다.\n", buf, len);
+	return len;
+}
+
+
+//--------------함수 설계------------------//
+// int Compare(char* str1, char* str2)
+// 함수명 : Compare
+// 기능   : 두 문자열의 같은 배치의 문자를 비교한 후에 결과값을 출력하는 함수
+// 인수   : 문자열 - char* str1, char* str2
+// 리턴값 : 1, 0, -1
+// 예외   : 두 문자열의 길이는 다르지만, 모두 같을때 ex) hell & hello
+int Compare(char* str1, char* str2)
+{
+	int asr;
+
+	while (1)
+	{
+		if (*str1 == *str2)	asr = 0;
+		else if (*str1 > *str2)	asr = 1;
+		else if (*str1 < *str2)	asr = -1;
+
+		str1++;	str2++;
+
+		if (asr == 0 && (*str1 ^ *str2) == '\0') return asr = 999999;
+		else if (asr != 0 || (*str1 || *str2) == '\0')		break;
+		
+	}
+	return asr;
+}
 
 void test01()				//  숫자키에 대한 문자열 출력
 {
@@ -147,31 +239,6 @@ void test03()						// 의도 : kBuf를 이용해서 찍은 문자열이 메모리공간에 어디에 �
 	Copy(pBuf, kBuf);					// 문자열 복사
 	Dump(buf, 100);
 }
-
-void Copy(char* p1, char* p2)
-{
-	while (*p2)							// 무한루프 (p2의 값) p2의 값이 \0이 아니라면 계속수행
-	{
-		*p1++ = *p2++;					// p1의 값에다가 p2의 값을 대입.
-		*p1 = 0;
-	}
-}
-void Dump(char*p, int len)				// 메모리 공간 출력용 범용 함수
-{
-	for (int i = 0; i < len; i++)
-	{
-		if (i % 16 == 0)				// 16의 배수마다 (줄 바꿈이 일어 날때 마다) 값을 찍는다.
-		{
-			printf("\n%08x", (unsigned int)p);		// p = 주소값
-		}
-	printf("%02x", (unsigned char)*p);	// *p = 문자값
-		if (i % 8 == 0)
-		{
-			printf("  ");
-		}
-	}
-}
-
 void test04()			// 포인터를 이용한 문자열 입출력 함수
 {
 	char* arr[10] = {"aaaaa","bbbb","ccc","dd", "e"};
@@ -206,16 +273,74 @@ void test05()
 	printf("struct stTset s1 : %d %f %s\n", s1.i, s1.a, s1.name);
 	printf("struct stTset s2 : %d %f %s\n", s2.i, s2.a, s2.name);
 }
-
 void test06()
+{
+	//char* s1 = "Good";
+	//char* s2 = "Afternoon";
+	char buf[100];									// 안전지대(buf)를 잘 활용해야 한다.
+	char* s1;										// 선언만 하면 어딜 가르키는지 모르고 안전하지 않은 공간(Heap)을 가르킨다.
+	char* s2;
+	//scanf("%s", s1`);								// 확보가 안되어 있는 공간이기 때문에
+
+	s1 = buf;
+	s2 = buf + 50;
+	scanf("%s", s1);
+	scanf("%s", s2);
+	/*
+	scanf("%s", s1 = buf);							// buf의 주소가 넘어간다.
+	scanf("%s", s2 = buf + 50);						// buf의 50번 째 주소에 s2에 넣는다.
+	*/
+	// strcat Test
+	printf("s1 : %s\n", s1);
+	printf("s2 : %s\n", s2);
+	/*
+	printf("strcat(s1, s2) : %s\n", strcat(s1, s2));							// s1은 const 영역(상수영역)이라 수정 불가이다.
+	*/							
+	// 방법은 1) s1 , s2에 있는 값을 로컬 영역으로 가지고 와서 수정을 한 후에 출력을 한다.
+	//		  2) printf에는 기본 printf가 있고 fprintf(파일로 출력)이 있다.
+	//		  3) sprintf(string printf) 가 있다 sprintf는 buffer에 출력을 거는 함수이다. 
+
+	// strlen이 return하는 길이 값은 \0(null) 전까지다.(= null은 카운트하지 않는다.)
+	printf("s1 : %s(%d) \n", s1, strlen(s1));									
+	printf("s2 : %s(%d) \n", s2, strlen(s2));
+	strcpy(buf, s1);
+	printf("strcat(s1, s2) : %s\n", strcat(buf, s2));
+
+	// buf에 있는 안전 메모리 공간에 출력을 내보낸다. fprintf도 buf가 아닌 FILE* stream으로 지정하면 같은 원리로 동작한다.
+	// sprintf(buf, "strcat(s1, s2) : %s%s\n", s1, s2);							// strcat(s1, s2);를 사용하면 고정문자열을 가리키고 있는 s1을 const로 지정하는 것이 불가능해서 오류가 나온다
+	// printf("%s", buf);
+}
+void test07()
 {
 
 }
+void test08()
+{
+	char buf1[100];
+	char buf2[100];
+	int asr;
+	printf("결과값은 1, 0, -1로 출력됩니다.\n예외 상황 시 오류 문구가 출력됩니다.\n");
+	printf("1번 문자열을 입력하세요:");
+	scanf("%s", buf1);
+	printf("2번 문자열을 입력하세요:");
+	scanf("%s", buf2);
+
+	asr = Compare(buf1, buf2);
+	
+	if (asr == 999999)
+	{
+		printf("<오류>두 값의 자릿수가 맞지 않습니다.자릿수를 맞춘 후 다시 시도하여주십시오.\n\n");
+	}
+	else	printf("결과는 [%d]입니다.\n\n", asr);
+}
+
+
+
 
 int main(void)
 {
 	int n;
-	void* p_arr[] = { test01, test02, test03, test04, test05 };			// 타입이 정해지지 않은 포인터
+	void* p_arr[] = { test01, test02, test03, test04, test05, test06, Length, test08};			// 타입이 정해지지 않은 포인터
 	void (*p_func)();			// 리턴값이 없고 인자가 정해지지않은 함수 포인터 선언
 	while (1)
 	{
@@ -224,6 +349,9 @@ int main(void)
 		printf("3. 포인터의 위치 지정\n");
 		printf("4. 포인터를 이용한 문자열 입출력 함수\n");
 		printf("5. 구조체 테스트\n");
+		printf("6. 표준 함수 테스트\n");
+		printf("7. 문자열 길이 테스트\n");
+		printf("8. 문자열 비교 테스트\n");
 
 		printf("0. 종료\n");
 		printf("====================================\n");
