@@ -85,7 +85,8 @@ int main()
 }
 #endif
 
-#if 1
+// Main
+#if 0
 void test01();
 void test02();
 void test03();
@@ -172,18 +173,18 @@ int Length(char* str)
 // 예외   : 두 문자열의 길이는 다르지만, 모두 같을때 ex) hell & hello
 int Compare(char* str1, char* str2)
 {
-	int asr;
+	int asr;												// 결과값 변수 선언
 
 	while (1)
 	{
-		if (*str1 == *str2)	asr = 0;
-		else if (*str1 > *str2)	asr = 1;
-		else if (*str1 < *str2)	asr = -1;
+		if (*str1 == *str2)	asr = 0;						// 첫번째와 두번째가 같을때
+		else if (*str1 > *str2)	asr = 1;					// 첫번째가 더 클때
+		else if (*str1 < *str2)	asr = -1;					// 두번째가 더 클때
 
-		str1++;	str2++;
+		str1++;	str2++;										//str1, str2 모두 다음자릿수로
 
-		if (asr == 0 && (*str1 ^ *str2) == '\0') return asr = 999999;
-		else if (asr != 0 || (*str1 || *str2) == '\0')		break;
+		/*if (asr == 0 && (*str1 == '\0') != (*str2 == '\0')) return asr = 999999;				// 예외 상황일 때 오류 문구 표기용
+		else*/ if (asr != 0 || (*str1 || *str2) == '\0')		break;							// asr이 0이 아니거나(1이나 -1일때) 현재 str1 or str2 의 위치가 null일때 break;
 		
 	}
 	return asr;
@@ -319,7 +320,7 @@ void test08()
 	char buf1[100];
 	char buf2[100];
 	int asr;
-	printf("결과값은 1, 0, -1로 출력됩니다.\n예외 상황 시 오류 문구가 출력됩니다.\n");
+	printf("결과값은 1, 0, -1로 출력됩니다.\n");
 	printf("1번 문자열을 입력하세요:");
 	scanf("%s", buf1);
 	printf("2번 문자열을 입력하세요:");
@@ -327,11 +328,11 @@ void test08()
 
 	asr = Compare(buf1, buf2);
 	
-	if (asr == 999999)
+	/*if (asr == 999999)
 	{
-		printf("<오류>두 값의 자릿수가 맞지 않습니다.자릿수를 맞춘 후 다시 시도하여주십시오.\n\n");
+		printf("<오류>자릿수가 맞지 않습니다.\n\n");
 	}
-	else	printf("결과는 [%d]입니다.\n\n", asr);
+	else*/	printf("결과는 [%d]입니다.\n\n", asr);
 }
 
 
@@ -401,9 +402,334 @@ int main(void)
 }
 #endif
 
+#if 1
+void exam0_1();
+void exam0_2();
+void exam01();
+void exam02();
+void exam03();
+void exam04();
+void exam05();
+
+
+int swap(int* a, int* b)
+{
+	int k = *a;
+	*a = *b;
+	*b = k;
+
+
+	return a, b;
+}
+
+void exam0_1()
+{
+	char* c;
+	char buf1[100];
+	char buf2[100];
+	int i = 0;
+	scanf("%s", buf1);
+	
+	c = buf1 + 50;
+
+	for (i = 0; i < (sizeof(c) - 1); i++)
+	{
+		printf("%c", buf1[i]);
+		printf(" ");
+	}
+	printf("\n");
+	/*
+	while (1)
+	{
+		buf1[i] = (&c + i);
+		if (i % 2 == 1)
+		{
+			buf1[i] = " ";
+		}
+
+		if (buf1[i] != '\0')
+		{
+			break;
+		}
+
+		i++;
+	}
+	printf("%s\n", buf1);
+	*/
+}
+void exam0_2()
+{
+	char* c;
+	char buf1[100];
+	int i = 0;
+	
+	c = buf1;
+
+	scanf("%s", c);
+
+	while (1)
+	{
+		//int k = buf[i] - 0x61;
+		if (buf1[i] >= 0x61 && buf1[i] <= 0x7A)
+		{
+			buf1[i] = buf1[i] - 0x20;
+		}
+
+		i++;
+		if (buf1[i] == '\0')	break;
+	}
+	printf("%s\n", buf1);
+}
+
+
+void exam01()
+{
+	int ten = 0;
+	int zerox = 0x00;
+	char c = 0;
+	char buf[200];
+
+	int ten01 = ten + 32;
+	int ten02 = ten + 64;
+	int ten03 = ten + 96;
+	int j = 0;
+	buf[0] = 0;
+
+	for (int i = 0; i < 32; i++)
+	{
+		if (ten == 10)
+		{
+			printf("[%d] [0x%02x] : LF   ", ten, zerox);
+			printf("[%d] [0x%02x] : \"   ", ten01, zerox + 0x20);
+			printf("[%d] [0x%02x] : J   ", ten02, zerox + 0x40);
+			printf("[%d] [0x%02x] : j    \n", ten03, zerox + 0x60);
+		}
+		else if (ten == 13)
+		{
+			printf("[%d] [0x%02x] : CR   ", ten, zerox);
+			printf(" [%d] [0x%02x] : %c   ", ten01, zerox + 0x20, i + 32);
+			printf(" [%d] [0x%02x] : %c   ", ten02, zerox + 0x40, i + 64);
+			printf(" [%d] [0x%02x] : %c    \n", ten03, zerox + 0x60, i + 96);
+		}
+		else if (ten == 27)
+		{
+			printf("[%d] [0x%02x] : ESC ", ten, zerox);
+			printf(" [%d] [0x%02x] : %c   ", ten01, zerox + 0x20, i + 32);
+			printf(" [%d] [0x%02x] : %c   ", ten02, zerox + 0x40, i + 64);
+			printf(" [%d] [0x%02x] : %c    \n", ten03, zerox + 0x60, i + 96);
+		}
+		else
+		{
+			printf("[%d] [0x%02x] : %c   ", ten, zerox, i);
+			printf(" [%d] [0x%02x] : %c   ", ten01, zerox + 0x20, i+32);
+			printf(" [%d] [0x%02x] : %c   ", ten02, zerox + 0x40, i+64);
+			printf(" [%d] [0x%02x] : %c    \n", ten03, zerox + 0x60, i+96);
+		}
+
+		j++;
+		ten ++;
+		ten01++;
+		ten02++;
+		ten03++;
+		zerox = zerox + 0x01;
+		buf[ten] = buf[ten] + 0x01;
+	}
+	printf("\n\n");
+}
+
+void exam02()
+{
+	int c;
+	int d;
+	scanf("%d", &c);
+	scanf("%d", &d);
+
+	printf("swap 전 %d[%d] ----- %d[%d]\n", c,&c, d, &d);
+	
+	swap(&c, &d);
+
+	printf("swap 전 %d[%d] ----- %d[%d]\n", c, &c, d, &d);
+
+
+}
+
+void exam03()
+{
+	printf(">숫자(홀수)를 입력하세요.\n");
+	int a;
+	scanf("%d", &a);
+	if (a % 2 == 0)
+	{
+		printf("홀수가 아닙니다. 홀수를 입력하세요.\n");
+	}
+	else
+	{
+
+		switch (a)
+		{
+		case 1: printf("*\n"); break;
+		case 3: 
+		{
+			printf(" * \n");
+			printf("*** \n");
+			break;
+		}
+		case 5:
+		{
+			printf("  *  \n");
+			printf(" ***  \n");
+			printf("***** \n");
+			break;
+		}
+		case 7:
+		{
+			printf("   *  \n");
+			printf("  ***   \n");
+			printf(" *****  \n");
+			printf("******* \n");
+			break;
+		}
+		case 9:
+		{
+			printf("    *  \n");
+			printf("   ***   \n");
+			printf("  *****  \n");
+			printf(" *******  \n");
+			printf("********* \n");
+			break;
+
+		}
+		case 11:
+		{
+			printf("     *  \n");
+			printf("    ***   \n");
+			printf("   *****  \n");
+			printf("  *******  \n");
+			printf(" ********* \n");
+			printf("*********** \n");
+			break;
+		}
+		case 13:
+		{
+			printf("      *  \n");
+			printf("     ***   \n");
+			printf("    *****  \n");
+			printf("   *******  \n");
+			printf("  ********* \n");
+			printf(" *********** \n");
+			printf("************* \n");
+			break;
+		}
+
+
+	}
+
+
+		/*
+		int b;
+		for (b = (a / 2) + 1; b < 0; b--)
+		{
+			printf("*");
+		}
+		*/
+	}
+}
+
+void exam04()
+{
+	printf("입력>");
+	char a;
+	scanf(" %c", &a);
+
+	char b;
+	b = a - 0x40;
+	int i;
+	while (1)
+	{
+		for (i = 0; i < b; i++)
+		{
+			printf("%c", a);
+		}
+		printf("\n");
+
+		a = a - 0x01;
+		b--;
+		if ((a - 0x40) == 0) break;
+	}
+	//printf("\n%d %c\n\n", b, a);
+}
+void exam05()
+{
+	int a;
+	int b;
+	int c;
+
+	int i;			// 약분할 약수
+	int j = 1;			// 순서 변수
+
+
+	char Abuf[100];
+	char Bbuf[100];
+
+	scanf("%d %d", &a, &b);
+
+	while (1)
+	{
+		for (i = 2; i < 50; i++)
+		{
+			
+			Abuf[j] = (a % i);
+			Bbuf[j] = (b % i);
+
+			j++;
+			if ((i != 2) && ((i % 2) == 0) || (i != 3) && ((i % 3) == 0) || (i != 5) && ((i % 5) == 0) || (i != 7) && ((i % 7) == 0))
+			{
+				i++;
+				j++;
+			}
+		}
+	}
+
+	printf("\n %d : ", a);
+	printf("\n %d : ", b);
+	printf("\n %d와 %d의 최대공약수는 %d 입니다", a, b, c);
+}
+
+int main(void)
+{
+int n;
+	void* p_arr[] = {exam0_1, exam0_2, exam01, exam02, exam03, exam04};			// 타입이 정해지지 않은 포인터
+	void (*p_func)();			// 리턴값이 없고 인자가 정해지지않은 함수 포인터 선언
+	while (1)
+	{
+		printf("1. 0-1번\n");
+		printf("2. 0-2번\n");
+		printf("3. 1번\n");
+		printf("4. 2번\n");
+		printf("5. 3번\n");
+		printf("6. 4번\n");
+		printf("7. 문자열 길이 테스트\n");
+		printf("8. 문자열 비교 테스트\n");
+
+		printf("0. 종료\n");
+		printf("====================================\n");
+
+		scanf("%d", &n);
+		
+		p_func = p_arr[n - 1];
+		p_func();
+	}
+	//test01(1);
+	//test02(1);
+	//test03(1);
+	//test04(1);
+}
+#endif
 #if 0
 int main(void)
 {
-	printf("Hello");
+	char a = '\0';
+	char b = ' ';
+	printf("%08x, %08x", &a, &b);
 }
 #endif
