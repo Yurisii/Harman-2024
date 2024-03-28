@@ -23,10 +23,11 @@ void seg(int pos, uint8_t c)
 	PORTD = c;
 	_delay_ms(2);
 }
+int k = 4;
 
 void FND_4(char* inf) // segment Image 배열
 {
-	for(int i = 0; i < 4; i++)
+	for(int i = 0; i < k; i++)
 	{
 		seg(i, *(inf + i));
 		//seg(i, inf[i]);
@@ -43,7 +44,7 @@ char* Trans1(int num)	//10진 정수를 입력받아서 16진수 문자열로 �
 	arr[1] = 0;
 	arr[2] = 0;
 	arr[3] = 0;
-
+	
 	return arr;
 }
 
@@ -86,18 +87,23 @@ char* Trans4(int num)	//10진 정수를 입력받아서 16진수 문자열로 �
 	arr[2] = hex[n3];
 	arr[3] = hex[n4];
 	
-	if ( num<10 )
-	{
-		arr[3] = 0; arr[1] = 0; arr[2] = 0;
-	}
-	else if ( num<100 )
-	{
-		arr[2] = 0; arr[3] = 0;
-	}
-	else if ( num<1000 )
-	{
-		arr[3] = 0;
-	}
+	if(num < 10) k = 1;
+	else if(num < 100) k = 2;
+	else if(num < 1000) k = 3;
+	else if(num < 10000) k = 4;
+	
+// 	if ( num<10 )
+// 	{
+// 		arr[3] = 0; arr[1] = 0; arr[2] = 0;
+// 	}
+// 	else if ( num<100 )
+// 	{
+// 		arr[2] = 0; arr[3] = 0;
+// 	}
+// 	else if ( num<1000 )
+// 	{
+// 		arr[3] = 0;
+// 	}
 	return arr;
 }
 /*
@@ -162,10 +168,10 @@ int main(void)
 			{
 				while(i == 1)
 				{
-					if(j < 10)	PORTC = 0x07; FND_4(Trans1(j++));					_delay_ms(10);
-					if(j >= 10 && j < 100); PORTC = 0x03; FND_4(Trans2(j++));		_delay_ms(10);
-					if(j >= 100 && j < 1000); PORTC = 0x01; FND_4(Trans3(j++));		_delay_ms(10);
-					if(j >= 1000 && j < 10000); PORTC = 0x00;FND_4(Trans4(j++));	_delay_ms(10);
+					if(j < 10)	 FND_4(Trans4(j++)); _delay_ms(10);
+					if(j >= 10 && j < 100); FND_4(Trans4(j++)); _delay_ms(10);
+					if(j >= 100 && j < 1000);  FND_4(Trans4(j++)); _delay_ms(10);
+					if(j >= 1000 && j < 10000); FND_4(Trans4(j++));	_delay_ms(10);
 					
 					if(!(PINB & 0x01 == 1))
 					{
