@@ -15,8 +15,8 @@ uint8_t dec[] = {0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x27, 0x7F, 0x67};
 
 char arr[5];		//segment image 정보를 담을 안전영역
 char *PC = &PORTC, *PD = &PORTD;
-extern int state;
-extern long cnt, tcnt;
+extern int state;			//전역변수로 state를 가져옴
+extern long cnt, tcnt;		//   ``		cnt와 tcnt도 가져옴
 void PortSet(char *p1, char *p2)
 {
 	PC = p1; PD = p2;
