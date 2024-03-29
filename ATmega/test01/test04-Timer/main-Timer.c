@@ -5,13 +5,14 @@
  * Author : SYSTEM-00
  */ 
 #include "myHeader.h"		//""는 
-#define OPTMAX 3
-#define STATEMAX 3
-#define RESETMAX 3
+#define OPTMAX 10
+#define STATEMAX 5
+#define RESETMAX 2
 
 #include <avr/io.h>			//<>는 System header, 제공하는 header 약속되어 있는 곳에 있다.
 #include <avr/delay.h>
 #include <avr/interrupt.h>
+#include <avr/wdt.h>
 
 #define __delay_t 500
 
@@ -19,16 +20,16 @@ volatile int opt = 0, state = 0, reset = 0;
 unsigned long cnt = 0, tcnt = 0;
 
 
+
 int main(void)
 {
     /* Replace with your application code */
 	PortSet(&PORTC, &PORTD);
 	PORTE = 0x07;
-	DDRA = 0x01;
+	DDRA = 0x0F;
 	DDRC = 0x0F;
 	DDRD = 0xFF;
 	DDRE = 0x00;
-	
 // 	TIMSK |= 0x01;		// TOIE(TNCT Overflow Interrupt Enable) >> 0번 = 0 , 2번 = 6  or 
 // 						// OCIE(OCR Compare Interrupt Enable) >> 0번 = 1, 2번 = 7
 // 						// 0000 0001b - Timer 0 TCNT overflow interrupt
@@ -46,64 +47,122 @@ int main(void)
 	sei();
     while (1) 
     {
-	if(cnt > 0x10000) cnt = 0;
-	SegDisp(cnt);
-	
+	PORTD = 0x3F;
+
+	if((cnt == tcnt) && (cnt != 0))
+	{
+		while(reset == 0)
+		{
+			char m;
+			Toggle(m);
+		}
+		
+	}
 	if(state != 0)
 	{
-		switch(state)
+		while(0 < state && state < 5)
 		{
-			case 1: _delay_ms(100);
-			case 2: _delay_ms(100);
-			case 3: _delay_ms(100);
-			case 4: _delay_ms(100);
-			default : state = 0; break;
+			for(int i = 0; i < 50; i++)
+			AllDisp(tcnt);
+			for(int i = 0; i < 50; i++)
+			AllDisp_state(tcnt); continue;
 		}
+// 		switch(state)
+// 		{
+// 			case 1: 
+// 			{
+// 				for(int i = 0; i < 50; i++)
+// 				AllDisp(tcnt);
+// 				for(int i = 0; i < 50; i++)
+// 				AllDisp_state(tcnt); continue;
+// 			}
+// 			case 2: 			
+// 			{
+// 				for(int i = 0; i < 50; i++)
+// 				AllDisp(tcnt);
+// 				for(int i = 0; i < 50; i++)
+// 				AllDisp_state(tcnt); continue;
+// 			}
+// 			case 3: 
+// 			{
+// 				for(int i = 0; i < 50; i++)
+// 				AllDisp(tcnt);
+// 				for(int i = 0; i < 50; i++)
+// 				AllDisp_state(tcnt); continue;
+// 			}
+// 			case 4: 
+// 			{
+// 				for(int i = 0; i < 50; i++)
+// 				AllDisp(tcnt);
+// 				for(int i = 0; i < 50; i++)
+// 				AllDisp_state(tcnt); continue;
+// 			}
+// 			default : 
+// 			{
+// 				for(int i = 0; i < 50; i++)
+// 				AllDisp(tcnt); state = 0; break; 
+// 			}
+// 		}
 	}
 	else if(opt != 0)
 	{
+// 		if(opt < 3)	for(int i = 0; i < 50; i++)	 {DecDisp(cnt);}		//기본 시작
+// 		else if (opt >= 3) wdt_enable(WDTO_15MS);
 		switch(opt)
 		{
-			case 1: PORTD = 0x40
+			case 1: 
+			for(int i = 0; i < 50; i++)	 DecDisp(cnt); continue;		//기본 시작
 			case 2: 
-			case 3:
-			case 4:
+			for(int i = 0; i < 50; i++)	 DecDisp(cnt); continue;
+			case 3:	wdt_enable(WDTO_15MS);
 			default : opt = 0; break;
 		}
 	}
-	else if(reset == 1)
+
+	else if(reset != 0)
 	{
-		
+		switch(reset)
+		{
+			case 1: cnt = 0, tcnt = 0; continue;
+			default: reset = 0; cnt = 0, tcnt = 0; break;
+		}
 	}
     }
 }
 
 ISR(TIMER1_OVF_vect)
 {
-	cnt++;
+	if((opt == 1) && (state == 0))	cnt++;
 }
 
-// ISR(TIMER0_OVF_vect)
-// {
-// 	tcnt++;
-// 	if(tcnt >= 10)
-// 	{
-// 		cnt++; tcnt = 0;
-// 	}
-// }
-// 
-// ISR(TIMER2_OVF_vect)
-// {
-// 	tcnt++;
-// 	if(tcnt >= 10)
-// 	{
-// 		cnt++; tcnt = 0;
-// 	}
-// }
 ISR(INT4_vect)
-{	//INT4 인터럽트 처리 루틴: sw1
-	opt++;  cnt--; 
-	if (opt >= OPTMAX)opt = 0;
+{		
+	if(state == 1)	
+	{
+		tcnt++;
+		if((tcnt % 10) == 0) tcnt-=10;
+	}	// 설정에 들어가면 1의 자리 ++
+	else if(state == 2) 
+	{
+		(tcnt += 10);
+		if(((tcnt / 10) % 6) == 0) tcnt-=60;
+	}		// 다음 10의 자리 ++
+	else if(state == 3) 
+	{
+		(tcnt += 60);\
+		if(((cnt / 60) % 10) == 0) tcnt-=600;
+	}		// 다음 100의 자리 ++
+	else if(state == 4) 
+	{
+		(tcnt += 600);	
+		if(((tcnt / 600) % 10) == 0) tcnt-=6000;
+	}	// 다음 1000의 자리 ++
+	else if((state == 0) && (opt > 4))	opt = 0;
+	else
+	{
+		opt++;
+		if (opt >= OPTMAX) opt = 0;
+	}
 }
 
 ISR(INT5_vect)
@@ -115,5 +174,13 @@ ISR(INT5_vect)
 ISR(INT6_vect)
 {	//INT6 인터럽트 처리 루틴: sw3
 	reset++;
-	if (reset >= RESETMAX) reset = 0;
+	state = 0;
+	opt = 0;
+	wdt_enable(WDTO_15MS);
+	wdt_reset();
+	if (reset >= RESETMAX) 
+	{
+		reset = 0;
+		cnt = 0, tcnt = 0;
+	}
 }
