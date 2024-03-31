@@ -15,7 +15,7 @@ uint8_t dec[] = {0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x27, 0x7F, 0x67};
 
 char arr[5];		//segment image 정보를 담을 안전영역
 char *PC = &PORTC, *PD = &PORTD;
-extern int state;			//전역변수로 state를 가져옴
+extern int state;			//전역변수로 state를 가져옴 >> 시간 설정 시 깜박임 위해서
 extern long cnt, tcnt;		//   ``		cnt와 tcnt도 가져옴
 void PortSet(char *p1, char *p2)
 {
@@ -31,7 +31,7 @@ void seg(int pos, uint8_t c)
 }
 int k = 4;
 
-void FND_4(char* inf) // segment Image 배열
+void FND_4(char* inf) // 필요한 자리만 segment Image 배열
 {
 	for(int i = 0; i < k; i++)
 	{
@@ -40,9 +40,9 @@ void FND_4(char* inf) // segment Image 배열
 	}
 }
 
-void seg_state(int pos, uint8_t c)
+void seg_state(int pos, uint8_t c)	//seg와 seg_state를 교차하여 점등하기 위함
 {
-	if((state - 1) != pos)			//state 에 맞는 자리를 
+	if((state - 1) != pos)			//state -1 >> n번 동작시 n-1번째를 제외하고 점등
 	{
 		*PC |= 0x0F;
 		*PC &= ~(1 << (3 - pos));
@@ -53,7 +53,7 @@ void seg_state(int pos, uint8_t c)
 }
 
 
-void FND_x(char* inf) // segment Image 배열
+void FND_x(char* inf) // 4자리 모두 segment Image 배열
 {
 	for(int i = 0; i < 4; i++)
 	{
@@ -61,7 +61,7 @@ void FND_x(char* inf) // segment Image 배열
 	}
 }
 
-void FND_state(char* inf) // segment Image 배열
+void FND_state(char* inf) // 점등을 위한 segment Image 배열
 {
 	for(int i = 0; i < 4; i++)
 	{
@@ -93,11 +93,11 @@ char* SegDisp(unsigned long num)		// 16 진수 함수
 }
 
 char* DecDisp(unsigned long num)		// 기본 시간 함수
-{	//10진 정수를 입력받아 16진수 문자열로 변환 ex)65535 ==> 0xffff, 56506=>0xBCDA
-	int n1 = num % 10;			//A(10): 문자가 아닌 숫자
-	int n2 = (num / 10) % 6;	//B(11)
-	int n3 = (num / 60) % 10;	//C(12)
-	int n4 = (num / 100) % 6;		//D(13)
+{	
+	int n1 = num % 10;			
+	int n2 = (num / 10) % 6;	
+	int n3 = (num / 60) % 10;	
+	int n4 = (num / 100) % 6;		
 	
 	arr[0] = dec[n1]; arr[1] = dec[n2]; arr[2] = dec[n3]; arr[3] = dec[n4];
 	
@@ -116,30 +116,30 @@ char* DecDisp(unsigned long num)		// 기본 시간 함수
 }
 
 char* AllDisp(unsigned long num)		// 0인 자리까지 다 보여주는 함수
-{	//10진 정수를 입력받아 16진수 문자열로 변환 ex)65535 ==> 0xffff, 56506=>0xBCDA
-	int n1 = num % 10;			//A(10): 문자가 아닌 숫자
-	int n2 = (num / 10) % 6;	//B(11)
-	int n3 = (num / 60) % 10;	//C(12)
-	int n4 = (num / 600) % 6;		//D(13)
+{	
+	int n1 = num % 10;			
+	int n2 = (num / 10) % 6;	
+	int n3 = (num / 60) % 10;	
+	int n4 = (num / 600) % 6;	
 	
 	arr[0] = dec[n1]; arr[1] = dec[n2]; arr[2] = dec[n3]; arr[3] = dec[n4];
 	FND_x(arr);
 	return arr;
 }
 
-char* AllDisp_state(unsigned long num)	// state 번호 제외 하고 다 보여주는 함수 > 교차로 사용해서 깜빡임
-{	//10진 정수를 입력받아 16진수 문자열로 변환 ex)65535 ==> 0xffff, 56506=>0xBCDA
-	int n1 = num % 10;			//A(10): 문자가 아닌 숫자
-	int n2 = (num / 10) % 6;	//B(11)
-	int n3 = (num / 60) % 10;	//C(12)
-	int n4 = (num / 600) % 6;		//D(13)
+char* AllDisp_state(unsigned long num)	// state 번호 제외 하고 다 보여주는 함수 > AllDisp와 교차로 사용해서 깜빡임
+{	
+	int n1 = num % 10;			
+	int n2 = (num / 10) % 6;	
+	int n3 = (num / 60) % 10;	
+	int n4 = (num / 600) % 6;	
 	
 	arr[0] = dec[n1]; arr[1] = dec[n2]; arr[2] = dec[n3]; arr[3] = dec[n4];
 	FND_state(arr);
 	return arr;
 }
 
-void Toggle(char m)
+void Toggle(char m)						// 설정 시간 도달 시 알림용 Toggle 함수
 {
 	for(int n = 0; n < 3; n++)
 	{

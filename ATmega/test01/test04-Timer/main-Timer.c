@@ -4,7 +4,7 @@
  * Created: 2024-03-28 오전 10:57:13
  * Author : SYSTEM-00
  */ 
-#include "myHeader.h"		//""는 
+#include "myHeader.h"		//""는 동일 디렉토리 안에서 호출 시
 #define OPTMAX 10
 #define STATEMAX 5
 #define RESETMAX 2
@@ -17,26 +17,19 @@
 #define __delay_t 500
 
 volatile int opt = 0, state = 0, reset = 0;
-unsigned long cnt = 0, tcnt = 0;
+unsigned long cnt = 0, tcnt = 0;			// cnt는 실제 카운트 tcnt는 설정 카운트
 
 
 
 int main(void)
 {
-    /* Replace with your application code */
 	PortSet(&PORTC, &PORTD);
 	PORTE = 0x07;
 	DDRA = 0x0F;
 	DDRC = 0x0F;
 	DDRD = 0xFF;
 	DDRE = 0x00;
-// 	TIMSK |= 0x01;		// TOIE(TNCT Overflow Interrupt Enable) >> 0번 = 0 , 2번 = 6  or 
-// 						// OCIE(OCR Compare Interrupt Enable) >> 0번 = 1, 2번 = 7
-// 						// 0000 0001b - Timer 0 TCNT overflow interrupt
-// 	TCCR0 = 0x04;		// 분주비(Pre-scaler) 64
-	
-// 	TIMSK |= 0x40;		// 0100 0001b - Timer 2 TCNT overflow interrupt
-// 	TCCR2 = 0x04;
+
 	EIMSK = 0x70;		// 0111 0000	//INT 4~INT 6 활성화
 	EICRB = 0x2a;		//4개의 B그룹(INT4~INT7)의 인터럽트 발생 시점 결정(00 10 10 10, 각 7 6 5 4에서의 INT발생 시점을 rising edge로 결정)
 
@@ -48,115 +41,74 @@ int main(void)
     while (1) 
     {
 	PORTD = 0x3F;
-
 	if((cnt == tcnt) && (cnt != 0))
 	{
 		while(reset == 0)
 		{
 			char m;
-			Toggle(m);
+			Toggle(m);	// 시간에 도달하면 LED와 Segment가 함께 깜박이는 역할
 		}
-		
 	}
-	if(state != 0)
+	if(state != 0)		// state(가운데 = 숫자 변경용) 이 동작하면
 	{
-		while(0 < state && state < 5)
+		while(0 < state && state < 5)	// 1 ~ 4동안 변경할 자릿 수 점등
 		{
-			for(int i = 0; i < 50; i++)
+			for(int i = 0; i < 50; i++)	// delay를 주고 설정카운트 전체 점등
 			AllDisp(tcnt);
-			for(int i = 0; i < 50; i++)
+			for(int i = 0; i < 50; i++)	// delay를 주고 설정 카운트 중 설정할 값 제외하고 점등
 			AllDisp_state(tcnt); continue;
 		}
-// 		switch(state)
-// 		{
-// 			case 1: 
-// 			{
-// 				for(int i = 0; i < 50; i++)
-// 				AllDisp(tcnt);
-// 				for(int i = 0; i < 50; i++)
-// 				AllDisp_state(tcnt); continue;
-// 			}
-// 			case 2: 			
-// 			{
-// 				for(int i = 0; i < 50; i++)
-// 				AllDisp(tcnt);
-// 				for(int i = 0; i < 50; i++)
-// 				AllDisp_state(tcnt); continue;
-// 			}
-// 			case 3: 
-// 			{
-// 				for(int i = 0; i < 50; i++)
-// 				AllDisp(tcnt);
-// 				for(int i = 0; i < 50; i++)
-// 				AllDisp_state(tcnt); continue;
-// 			}
-// 			case 4: 
-// 			{
-// 				for(int i = 0; i < 50; i++)
-// 				AllDisp(tcnt);
-// 				for(int i = 0; i < 50; i++)
-// 				AllDisp_state(tcnt); continue;
-// 			}
-// 			default : 
-// 			{
-// 				for(int i = 0; i < 50; i++)
-// 				AllDisp(tcnt); state = 0; break; 
-// 			}
-// 		}
 	}
-	else if(opt != 0)
+	else if(opt != 0)	// opt(첫번 째 = 시작/정지 버튼) 이 동작하면
 	{
-// 		if(opt < 3)	for(int i = 0; i < 50; i++)	 {DecDisp(cnt);}		//기본 시작
-// 		else if (opt >= 3) wdt_enable(WDTO_15MS);
 		switch(opt)
 		{
-			case 1: 
-			for(int i = 0; i < 50; i++)	 DecDisp(cnt); continue;		//기본 시작
+			case 1:	
+			for(int i = 0; i < 50; i++)	 DecDisp(cnt); continue;		// 1번 누르면 시작
 			case 2: 
-			for(int i = 0; i < 50; i++)	 DecDisp(cnt); continue;
-			case 3:	wdt_enable(WDTO_15MS);
+			for(int i = 0; i < 50; i++)	 DecDisp(cnt); continue;		// 2번 누르면 멈춤
+			case 3: continue;											// 3번 누르면 0
+			case 4:	wdt_enable(WDTO_15MS);								// 4번 누르면 reset
 			default : opt = 0; break;
 		}
 	}
 
-	else if(reset != 0)
+	else if(reset != 0)	//reset이 동작하면.
 	{
 		switch(reset)
 		{
-			case 1: cnt = 0, tcnt = 0; continue;
-			default: reset = 0; cnt = 0, tcnt = 0; break;
+			case 1: cnt = 0, tcnt = 0; continue;						// 카운트된 값 초기화
+			default: reset = 0; cnt = 0, tcnt = 0; break;				// 카운트된 값 초기화(안전용)
 		}
 	}
     }
 }
-
 ISR(TIMER1_OVF_vect)
 {
-	if((opt == 1) && (state == 0))	cnt++;
+	if((opt == 1) && (state == 0))	cnt++;			// opt만 1번 동작하고 state는 동작하지 않으면 cnt 올라간다.
 }
-
-ISR(INT4_vect)
+ISR(INT4_vect)										// 왼쪽(적색) 스위치
 {		
-	if(state == 1)	
+	if(state == 1)									// state 1이면 1의 자리 증가
 	{
 		tcnt++;
-		if((tcnt % 10) == 0) tcnt-=10;
-	}	// 설정에 들어가면 1의 자리 ++
-	else if(state == 2) 
+		if((tcnt % 10) == 0) tcnt-=10;				// 9에서 10으로 넘어가면 -10
+	}	
+	else if(state == 2)								// state 2이면 10의 자리 증가
 	{
 		(tcnt += 10);
-		if(((tcnt / 10) % 6) == 0) tcnt-=60;
-	}		// 다음 10의 자리 ++
-	else if(state == 3) 
+		if(((tcnt / 10) % 6) == 0) tcnt-=60;		// 5에서 6으로 넘어가면 -60
+	}		
+	else if(state == 3)								// state 3이면 세번째 자리 증가
 	{
 		(tcnt += 60);\
-		if(((cnt / 60) % 10) == 0) tcnt-=600;
-	}		// 다음 100의 자리 ++
-	else if(state == 4) 
+		if(((tcnt / 60) % 10) == 0) tcnt-=600;		// 9에서 10으로 넘어가면 -600
+	}		
+	else if(state == 4)								// state 4이면 네 번째 자리 증가
 	{
 		(tcnt += 600);	
-		if(((tcnt / 600) % 10) == 0) tcnt-=6000;
-	}	// 다음 1000의 자리 ++
+		if(((tcnt / 600) % 10) == 0) tcnt-=6000;	// 5에서 6으로 넘어가면 -6000
+	}	
 	else if((state == 0) && (opt > 4))	opt = 0;
 	else
 	{
@@ -164,19 +116,17 @@ ISR(INT4_vect)
 		if (opt >= OPTMAX) opt = 0;
 	}
 }
-
-ISR(INT5_vect)
-{	//INT5 인터럽트 처리 루틴: sw2
+ISR(INT5_vect)										// 가운데(주황색) 스위치
+{	
 	state++;
 	if (state >= STATEMAX) state = 0;
 }
-
-ISR(INT6_vect)
-{	//INT6 인터럽트 처리 루틴: sw3
+ISR(INT6_vect)										// 오른쪽(노란색) 스위치
+{	
 	reset++;
 	state = 0;
 	opt = 0;
-	wdt_enable(WDTO_15MS);
+	wdt_enable(WDTO_15MS);							//Reset
 	wdt_reset();
 	if (reset >= RESETMAX) 
 	{
